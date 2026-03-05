@@ -22,24 +22,6 @@ MeshTexture was born out of a simple necessity: To create a tool that handles th
 - **Engineered:** Focused on manifold (water-tight) geometry.
 - **Slicer-Ready:** Outputs files that your printer actually understands.
 
-## ⚠️ The Texture Gap: Why Traditional Tools Fail
-
-The 3D printing community has been trapped between two extremes:
-1. **CAD Bottleneck:** Parametric software (Fusion 360, SolidWorks) is designed for precision, not for millions of triangular faces. Adding a complex displacement map often leads to the dreaded "Not Responding" screen or file sizes that are impossible to export.
-2. **The Slicer Crash:** Even if you manage to generate a textured model in artistic software, most slicers (Bambu Studio, Cura, etc.) struggle to process the massive polygon counts, leading to lag, visual artifacts, or total software failure.
-
-**MeshTexture solves this by treating geometry like data, not just lines on a screen.**
-
-## 🧠 Engineering Under the Hood: Breaking the 1.4GB Limit
-
-MeshTexture isn't just a wrapper for Three.js; it's a high-performance geometric engine optimized for the browser. 
-
-### Key Innovations:
-- **TypedArray Memory Management:** By transitioning from standard JS objects to low-level **Float64Array** and **Int32Array** architectures, we reduced RAM consumption from **1.5GB to under 100MB** for models with 7M+ polygons. This makes Chrome's 1.4GB Heap Limit a problem of the past.
-- **Isotropic Topology:** Unlike standard subdivision, our engine uses a **Longest-Edge Bisection (1:2 Split)** logic. This ensures equilateral triangle shapes, providing a uniform base for textures and preventing "sliver" artifacts in physical prints.
-- **Parallel Processing:** All heavy geometric calculations are offloaded to **Web Workers**, keeping the UI responsive even while processing millions of vertices.
-<img width="2560" height="1393" alt="Ekran görüntüsü 2026-03-05 0018091" src="https://github.com/user-attachments/assets/878209c0-f13b-4b38-95ce-2051b3321dda" />
-
 ## 🔄 The Smart Workflow: 3 Steps to Print
 
 MeshTexture handles all the geometric complexity in the background, so you can focus on the design.
@@ -66,3 +48,23 @@ MeshTexture is evolving from a robust geometric engine into a comprehensive prof
 - **[ ] Industrial Texture Library:** A curated collection of ISO-standard engineering patterns (knurling, safety grips, technical meshes).
 - **[ ] Advanced UV Unwrapping:** Automated spherical and cylindrical mapping for complex organic geometries.
 - **[ ] Edge Decimation (Simplify):** High-speed planar simplification to reduce file sizes for ultra-high polygon models without losing detail.
+
+
+## ⚠️ The Texture Gap: Why Traditional Tools Fail
+
+The 3D printing community has been trapped between two extremes:
+1. **CAD Bottleneck:** Parametric software (Fusion 360, SolidWorks) is designed for precision, not for millions of triangular faces. Adding a complex displacement map often leads to the dreaded "Not Responding" screen or file sizes that are impossible to export.
+2. **The Slicer Crash:** Even if you manage to generate a textured model in artistic software, most slicers (Bambu Studio, Cura, etc.) struggle to process the massive polygon counts, leading to lag, visual artifacts, or total software failure.
+
+**MeshTexture solves this by treating geometry like data, not just lines on a screen.**
+
+## 🧠 Engineering Under the Hood: Breaking the 1.4GB Limit
+
+MeshTexture isn't just a wrapper for Three.js; it's a high-performance geometric engine optimized for the browser. 
+
+### Key Innovations:
+- **TypedArray Memory Management:** By transitioning from standard JS objects to low-level **Float64Array** and **Int32Array** architectures, we reduced RAM consumption from **1.5GB to under 100MB** for models with 7M+ polygons. This makes Chrome's 1.4GB Heap Limit a problem of the past.
+- **Isotropic Topology:** Unlike standard subdivision, our engine uses a **Longest-Edge Bisection (1:2 Split)** logic. This ensures equilateral triangle shapes, providing a uniform base for textures and preventing "sliver" artifacts in physical prints.
+- **Parallel Processing:** All heavy geometric calculations are offloaded to **Web Workers**, keeping the UI responsive even while processing millions of vertices.
+<img width="2560" height="1393" alt="Ekran görüntüsü 2026-03-05 0018091" src="https://github.com/user-attachments/assets/878209c0-f13b-4b38-95ce-2051b3321dda" />
+
