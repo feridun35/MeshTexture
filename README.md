@@ -39,3 +39,30 @@ MeshTexture isn't just a wrapper for Three.js; it's a high-performance geometric
 - **Isotropic Topology:** Unlike standard subdivision, our engine uses a **Longest-Edge Bisection (1:2 Split)** logic. This ensures equilateral triangle shapes, providing a uniform base for textures and preventing "sliver" artifacts in physical prints.
 - **Parallel Processing:** All heavy geometric calculations are offloaded to **Web Workers**, keeping the UI responsive even while processing millions of vertices.
 <img width="2560" height="1393" alt="Ekran görüntüsü 2026-03-05 0018091" src="https://github.com/user-attachments/assets/878209c0-f13b-4b38-95ce-2051b3321dda" />
+
+## 🔄 The Smart Workflow: 3 Steps to Print
+
+MeshTexture handles all the geometric complexity in the background, so you can focus on the design.
+
+1. **Select:** Import your STL and click the surfaces you want to texture. Our **Smart Fill** (Angle-based BFS) picks the right faces instantly.
+2. **Texture:** Pick a pattern from the library or upload your own. The engine **automatically** optimizes the mesh density (Refine) to match your chosen detail level.
+3. **Bake:** Click "Apply" to make the texture physical. The engine ensures the model is **Manifold (Water-tight)** and generates an optimized, binary STL ready for your slicer.
+
+## 🖨️ Slicer-Ready: Designed for Physical Reality
+
+A beautiful model on screen is useless if it doesn't print. MeshTexture ensures every export is optimized for the actual manufacturing process.
+
+### Why Our Models Print Better:
+- **Manifold Integrity:** The engine performs a real-time **isManifold** check, ensuring your model is "water-tight" and won't confuse your slicer's path generation.
+- **Automated Wall Generation:** When surface displacement occurs, the engine automatically bridges the gap between the original base and the new texture with vertical "walls," preventing non-manifold edges.
+- **Binary STL Optimization:** Exports are handled using a specialized **STLExporter** that ensures maximum compatibility with Bambu Studio, Cura, and PrusaSlicer.
+- **Isotropic Uniformity:** Our **1:2 Edge Bisection** subdivision logic keeps triangle shapes uniform, eliminating the "sliver" artifacts common in automated subdivision tools.
+
+## 🗺️ Roadmap: The Future of MeshTexture
+
+MeshTexture is evolving from a robust geometric engine into a comprehensive professional texturing suite.
+
+- **[ ] Local Texture Painting:** Brush-based masking to apply different textures to specific sub-regions of a selection.
+- **[ ] Industrial Texture Library:** A curated collection of ISO-standard engineering patterns (knurling, safety grips, technical meshes).
+- **[ ] Advanced UV Unwrapping:** Automated spherical and cylindrical mapping for complex organic geometries.
+- **[ ] Edge Decimation (Simplify):** High-speed planar simplification to reduce file sizes for ultra-high polygon models without losing detail.
