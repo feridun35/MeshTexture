@@ -30,6 +30,9 @@ MeshTexture handles all the geometric complexity in the background, so you can f
 2. **Texture:** Pick a pattern from the library or upload your own. The engine **automatically** optimizes the mesh density (Refine) to match your chosen detail level.
 3. **Bake:** Click "Apply" to make the texture physical. The engine ensures the model is **Manifold (Water-tight)** and generates an optimized, binary STL ready for your slicer.
 
+![WhatsApp Image 2026-03-02 at 20 02 58](https://github.com/user-attachments/assets/512a5dac-a8f6-4e3f-befd-71ea377ff7d5)
+
+
 ## 🖨️ Slicer-Ready: Designed for Physical Reality
 
 A beautiful model on screen is useless if it doesn't print. MeshTexture ensures every export is optimized for the actual manufacturing process.
@@ -39,6 +42,8 @@ A beautiful model on screen is useless if it doesn't print. MeshTexture ensures 
 - **Automated Wall Generation:** When surface displacement occurs, the engine automatically bridges the gap between the original base and the new texture with vertical "walls," preventing non-manifold edges.
 - **Binary STL Optimization:** Exports are handled using a specialized **STLExporter** that ensures maximum compatibility with Bambu Studio, Cura, and PrusaSlicer.
 - **Isotropic Uniformity:** Our **1:2 Edge Bisection** subdivision logic keeps triangle shapes uniform, eliminating the "sliver" artifacts common in automated subdivision tools.
+<img width="2560" height="1528" alt="image" src="https://github.com/user-attachments/assets/b73bbec3-8d7c-42b7-bf9e-3fbd267680ae" />
+
 
 ## 🗺️ Roadmap: The Future of MeshTexture
 
@@ -68,3 +73,12 @@ MeshTexture isn't just a wrapper for Three.js; it's a high-performance geometric
 - **Parallel Processing:** All heavy geometric calculations are offloaded to **Web Workers**, keeping the UI responsive even while processing millions of vertices.
 <img width="2560" height="1393" alt="Ekran görüntüsü 2026-03-05 0018091" src="https://github.com/user-attachments/assets/878209c0-f13b-4b38-95ce-2051b3321dda" />
 
+---
+
+## 🔒 Legal & Copyright
+
+**© 2026 Feridun Oktar. All rights reserved.**
+
+The source code of MeshTexture is proprietary. This repository is for documentation, technical specifications, and project showcase purposes only. 
+
+No license is granted for the distribution, modification, or commercial use of the underlying software architecture, algorithms, or front-end code. For inquiries or collaboration, please open an issue or contact me through the platform.
