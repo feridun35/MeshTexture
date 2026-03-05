@@ -30,8 +30,8 @@ MeshTexture handles all the geometric complexity in the background, so you can f
 2. **Texture:** Pick a pattern from the library or upload your own. The engine **automatically** optimizes the mesh density (Refine) to match your chosen detail level.
 3. **Bake:** Click "Apply" to make the texture physical. The engine ensures the model is **Manifold (Water-tight)** and generates an optimized, binary STL ready for your slicer.
 
-![WhatsApp Image 2026-03-02 at 20 02 58](https://github.com/user-attachments/assets/512a5dac-a8f6-4e3f-befd-71ea377ff7d5)
-
+Tutorial Video :  https://www.youtube.com/watch?v=AHr5NL9hm3o
+<img width="4000" height="1516" alt="collage" src="https://github.com/user-attachments/assets/e62951da-6bff-4450-b4a5-f970521a6873" />
 
 ## 🖨️ Slicer-Ready: Designed for Physical Reality
 
@@ -73,6 +73,9 @@ MeshTexture isn't just a wrapper for Three.js; it's a high-performance geometric
 - **Parallel Processing:** All heavy geometric calculations are offloaded to **Web Workers**, keeping the UI responsive even while processing millions of vertices.
 <img width="2560" height="1393" alt="Ekran görüntüsü 2026-03-05 0018091" src="https://github.com/user-attachments/assets/878209c0-f13b-4b38-95ce-2051b3321dda" />
 
+Reddit Threads : 
+https://www.reddit.com/r/3Dprinting/comments/1qlx3sb/i_built_a_free_web_tool_to_embossengrave_physical/ 
+https://www.reddit.com/r/3Dprinting/comments/1rivxie/texture_prints_update/
 ---
 
 ## 🔒 Legal & Copyright
