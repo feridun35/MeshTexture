@@ -50,7 +50,7 @@ A beautiful model on screen is useless if it doesn't print. MeshTexture ensures 
 MeshTexture is evolving from a robust geometric engine into a comprehensive professional texturing suite.
 
 - **[ ] Local Texture Painting:** Brush-based masking to apply different textures to specific sub-regions of a selection.
-- **[ 3D Geometry Texturing (STL-to-STL Mapping):** Moving beyond 2D displacement. We are developing an engine to map actual 3D meshes onto surfaces as physical textures.
+- **[ ] 3D Geometry Texturing (STL-to-STL Mapping):** Moving beyond 2D displacement. We are developing an engine to map actual 3D meshes onto surfaces as physical textures.
 - **[ ] Industrial Texture Library:** A curated collection of ISO-standard engineering patterns (knurling, safety grips, technical meshes).
 - **[ ] Advanced UV Unwrapping:** Automated spherical and cylindrical mapping for complex organic geometries.
 - **[ ] Edge Decimation (Simplify):** High-speed planar simplification to reduce file sizes for ultra-high polygon models without losing detail.
