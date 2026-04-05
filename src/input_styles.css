@@ -1,0 +1,909 @@
+/* --- Text Input Wrapper (From Uiverse.io by WhiteNervosa) --- */
+.textInputWrapper {
+    position: relative;
+    width: 180px;
+    margin: 12px 5px;
+    --accent-color: #a3e583;
+}
+
+.textInputWrapper:before {
+    transition: border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.42);
+}
+
+.textInputWrapper:before,
+.textInputWrapper:after {
+    content: "";
+    left: 0;
+    right: 0;
+    position: absolute;
+    pointer-events: none;
+    bottom: -1px;
+    z-index: 4;
+    width: 100%;
+}
+
+.textInputWrapper:focus-within:before {
+    border-bottom: 1px solid var(--accent-color);
+}
+
+.textInputWrapper:before {
+    transition: border-bottom-color 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.42);
+}
+
+.textInputWrapper:focus-within:before {
+    border-bottom: 1px solid var(--accent-color);
+    transform: scaleX(1);
+}
+
+.textInputWrapper:focus-within:after {
+    border-bottom: 2px solid var(--accent-color);
+    transform: scaleX(1);
+}
+
+.textInputWrapper:after {
+    content: "";
+    transform: scaleX(0);
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+    will-change: transform;
+    border-bottom: 2px solid var(--accent-color);
+    border-bottom-color: var(--accent-color);
+}
+
+.textInput::placeholder {
+    transition: opacity 250ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+    opacity: 1;
+    user-select: none;
+    color: rgba(255, 255, 255, 0.582);
+}
+
+.textInputWrapper .textInput {
+    border-radius: 5px 5px 0px 0px;
+    box-shadow: 0px 2px 5px rgb(35 35 35 / 30%);
+    max-height: 36px;
+    background-color: #252525;
+    transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition-duration: 200ms;
+    transition-property: background-color;
+    color: #e8e8e8;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px;
+    width: 100%;
+    border-left: none;
+    border-bottom: none;
+    border-right: none;
+}
+
+.textInputWrapper .textInput:focus,
+.textInputWrapper .textInput:active {
+    outline: none;
+}
+
+.textInputWrapper:focus-within .textInput,
+.textInputWrapper .textInput:focus,
+.textInputWrapper .textInput:active {
+    background-color: #353535;
+}
+
+.textInputWrapper:focus-within .textInput::placeholder {
+    opacity: 0;
+}
+
+/* 
+   Layout Adjustment for Sidebar Grid 
+   (Necessary to prevent 180px width from breaking the 320px fixed sidebar)
+*/
+.grid-control .textInputWrapper {
+    width: 60px !important;
+    /* Visual: Full width of the grid cell */
+    margin: 0 !important;
+    /* Visual: Remove margin to fit grid */
+    align-self: center;
+}
+
+.grid-control .textInput {
+    padding: 8px 4px !important;
+    /* Visual: Adjust padding to allow number visibility */
+    text-align: center;
+    font-size: 13px;
+    /* Slightly reduced to fit numbers */
+}
+
+/* Ensure nothing overflows */
+.textInputWrapper .textInput {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Light Mode Overrides */
+/* Light Mode Overrides */
+[data-theme="light"] .textInputWrapper .textInput {
+    background-color: #f5f5f5;
+    /* Cleaner Off-White */
+    color: #1a1a1a;
+    /* Dark Text */
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+    border: none !important;
+    /* Force remove all borders */
+    border-top: none !important;
+    /* Explicitly ensure top is gone */
+}
+
+[data-theme="light"] .textInputWrapper:before {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .textInput::placeholder {
+    color: rgba(0, 0, 0, 0.4);
+}
+
+/* New Load STL Button Style */
+/* From Uiverse.io by xueyuantan - Adapted for Dark Mode & Theme */
+.load-stl-btn {
+    /* width: 100%; height: 3em; - Inherited/Defined previously but overriding here for update context if needed, but replace block is specific */
+    width: 100%;
+    height: 3em;
+    border-radius: 30em;
+    font-size: 0.8rem;
+    /* Adjusted to match "Upload Texture" (0.75rem) more closely */
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    /* Match standard uiverse-btn weight */
+    border: none;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    /* Dark Neumorphism */
+    box-shadow: 6px 6px 12px #151515,
+        -6px -6px 12px #272727;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    color: var(--text-main);
+    transition: all 0.3s ease;
+}
+
+/* Light Mode Override */
+[data-theme="light"] .load-stl-btn {
+    box-shadow: 6px 6px 12px #c5c5c5,
+        -6px -6px 12px #ffffff;
+    color: #333;
+}
+
+.load-stl-btn::before {
+    content: '';
+    width: 100%;
+    /* Full width */
+    height: 100%;
+    /* Full height */
+    position: absolute;
+    top: 0;
+    left: 0;
+    /* Blue Gradient to match page theme */
+    background-image: linear-gradient(to right, #2196F3 0%, #00BCD4 100%);
+    transition: transform 0.5s ease;
+    /* Use transform instead of width */
+    transform: translateX(-100%);
+    /* Start off-screen left */
+    display: block;
+    z-index: -1;
+    /* Removed border-radius to rely on parent's overflow:hidden (Fixes gap) */
+}
+
+.load-stl-btn:hover::before {
+    transform: translateX(0);
+    /* Slide in */
+}
+
+.load-stl-btn:hover {
+    color: white;
+    /* Ensure text visible on blue */
+}
+
+/* Disable hover effect STRICTLY when file is loaded */
+.load-stl-btn.file-loaded::before {
+    display: none !important;
+    content: none !important;
+    /* Double safety */
+}
+
+.load-stl-btn.file-loaded:hover::before {
+    transform: translateX(-100%) !important;
+    opacity: 0 !important;
+    transition: none !important;
+}
+
+.load-stl-btn.file-loaded:hover {
+    color: var(--text-main);
+    /* Stay normal color */
+    cursor: default;
+}
+
+/* Ensure text is above */
+.load-stl-btn span {
+    z-index: 2;
+    position: relative;
+}
+
+/* Override Progress Bar Color for this button */
+.load-stl-btn .progress-overlay {
+    background-color: var(--accent-blue) !important;
+    height: 100% !important;
+    /* Make it fill the button like the hover effect? Or keep as bar? User said 'loading bar'. kept as bar usually better but user moved away from standard btn. Let's keep distinct bar but blue. */
+    bottom: 0;
+    opacity: 0.8;
+}
+
+.load-stl-btn.file-loaded .progress-overlay {
+    display: none !important;
+}
+
+/* Hide progress bar when loaded (success state) immediately if desired, or let JS handle it. 
+   User said "stl yüklendiğinde yeşil yükleme barı gitsin". 
+   If we want it gone, we can hide it via CSS on success.
+*/
+.load-stl-btn.success .progress-overlay {
+    display: none !important;
+    /* Force hide immediately on success */
+}
+
+/* Hide progress bar when loaded (success state) immediately if desired, or let JS handle it. 
+   User said "stl yüklendiğinde yeşil yükleme barı gitsin". 
+   If we want it gone, we can hide it via CSS on success.
+*/
+.load-stl-btn.success .progress-overlay {
+    display: none !important;
+    /* Force hide immediately on success */
+}
+
+/* --- Upload Texture Button (Green Variant) --- */
+.upload-texture-btn {
+    width: 100%;
+    height: 3em;
+    border-radius: 30em;
+    font-size: 0.8rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    /* Dark Neumorphism */
+    box-shadow: 6px 6px 12px #151515,
+        -6px -6px 12px #272727;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    color: var(--text-main);
+    transition: all 0.3s ease;
+}
+
+[data-theme="light"] .upload-texture-btn {
+    box-shadow: 6px 6px 12px #c5c5c5,
+        -6px -6px 12px #ffffff;
+    color: #333;
+}
+
+.upload-texture-btn::before {
+    content: '';
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    /* Green Gradient */
+    background-image: linear-gradient(to right, #4CAF50 0%, #8BC34A 100%);
+    transition: transform 0.5s ease;
+    transform: translateX(-100%);
+    display: block;
+    z-index: -1;
+}
+
+.upload-texture-btn:hover::before {
+    transform: translateX(0);
+}
+
+.upload-texture-btn:hover {
+    color: white;
+}
+
+/* Disable hover effect STRICTLY when file is loaded */
+.upload-texture-btn.file-loaded::before {
+    display: none !important;
+    content: none !important;
+}
+
+.upload-texture-btn.file-loaded:hover::before {
+    transform: translateX(-100%) !important;
+    opacity: 0 !important;
+    transition: none !important;
+}
+
+.upload-texture-btn.file-loaded:hover {
+    color: var(--text-main);
+    cursor: default;
+}
+
+.upload-texture-btn span {
+    z-index: 2;
+    position: relative;
+}
+
+/* Override Progress Bar Color for this button */
+/* Override Progress Bar Color for this button */
+.upload-texture-btn .progress-overlay {
+    background-color: var(--success-green) !important;
+    height: 100% !important;
+    bottom: 0;
+    opacity: 1;
+    /* Solid green as requested */
+}
+
+.upload-texture-btn.file-loaded .progress-overlay {
+    display: none !important;
+}
+
+.upload-texture-btn.success .progress-overlay {
+    display: none !important;
+}
+
+/* Texture Preview Handling */
+.upload-texture-btn.has-preview {
+    background-size: cover !important;
+    background-position: center !important;
+    color: transparent !important;
+    /* Hide text */
+    text-shadow: none;
+}
+
+.upload-texture-btn.has-preview span {
+    opacity: 0;
+    /* Additional ensuring text is gone */
+}
+
+/* --- Select Texture Button (Shutter Style) --- */
+/* Adapted from Uiverse.io by Navarog21 */
+/* --- Select Texture Button (Refactored: Expanding Brackets) --- */
+/* Matches "Bracket" [ ] visual without using background masks */
+/* --- Select Texture Button (Green Gradient Style) --- */
+/* Matching .btn-donate visual style but with Success Green theme */
+#selectMapBtn {
+    --clr-font-main: hsla(0 0% 20% / 100);
+    --btn-bg-1: #66bb6a;
+    /* Lighter Green */
+    --btn-bg-2: var(--success-green);
+    /* Base Green */
+    --btn-bg-color: hsla(360 100% 100% / 1);
+    --radii: 0.5em;
+    cursor: pointer;
+    min-height: 42px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: 0.7s;
+    background-size: 280% auto;
+    background-image: linear-gradient(325deg,
+            var(--btn-bg-2) 0%,
+            var(--btn-bg-1) 55%,
+            var(--btn-bg-2) 90%);
+    border: none !important;
+    border-radius: var(--radii);
+    color: var(--btn-bg-color);
+    box-shadow:
+        0px 0px 20px rgba(76, 175, 80, 0.5),
+        0px 5px 5px -1px rgba(56, 142, 60, 0.25),
+        inset 4px 4px 8px rgba(200, 230, 201, 0.5),
+        inset -4px -4px 8px rgba(27, 94, 32, 0.35);
+
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Inter', sans-serif;
+    position: relative;
+    overflow: hidden !important;
+    width: 100%;
+    /* Maintain layout */
+    margin: 0 !important;
+    box-sizing: border-box;
+}
+
+#selectMapBtn:hover {
+    background-position: right top;
+    color: white;
+}
+
+#selectMapBtn:is(:focus, :focus-visible, :active),
+#selectMapBtn.clicked {
+    outline: none;
+    box-shadow:
+        0 0 0 3px var(--btn-bg-color),
+        0 0 0 6px var(--btn-bg-2) !important;
+}
+
+/* Light Mode Override */
+[data-theme="light"] #selectMapBtn:hover {
+    color: white;
+}
+
+#selectMapBtn span {
+    position: relative;
+    z-index: 2;
+}
+
+/* --- Select All Button (Blue Gradient Style) --- */
+/* Matching .btn-donate visual style but with Accent Blue theme */
+#selectAllBtn {
+    --clr-font-main: hsla(0 0% 20% / 100);
+    --btn-bg-1: #4fc3f7;
+    /* Lighter Blue */
+    --btn-bg-2: var(--accent-blue);
+    /* Base Blue */
+    --btn-bg-color: hsla(360 100% 100% / 1);
+    --radii: 0.5em;
+    cursor: pointer;
+    min-height: 42px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: 0.7s;
+    background-size: 280% auto;
+    background-image: linear-gradient(325deg,
+            var(--btn-bg-2) 0%,
+            var(--btn-bg-1) 55%,
+            var(--btn-bg-2) 90%);
+    border: none !important;
+    border-radius: var(--radii);
+    color: var(--btn-bg-color);
+    box-shadow:
+        0px 0px 20px rgba(33, 150, 243, 0.5),
+        0px 5px 5px -1px rgba(25, 118, 210, 0.25),
+        inset 4px 4px 8px rgba(187, 222, 251, 0.5),
+        inset -4px -4px 8px rgba(13, 71, 161, 0.35);
+
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Inter', sans-serif;
+    position: relative;
+    overflow: hidden !important;
+}
+
+#selectAllBtn:hover {
+    background-position: right top;
+    color: white;
+}
+
+#selectAllBtn:is(:focus, :focus-visible, :active),
+#selectAllBtn.clicked {
+    outline: none;
+    box-shadow:
+        0 0 0 3px var(--btn-bg-color),
+        0 0 0 6px var(--btn-bg-2) !important;
+}
+
+/* Light Mode Override */
+[data-theme="light"] #selectAllBtn:hover {
+    color: white;
+}
+
+
+
+
+
+/* --- Clear Selection Button (Red Gradient Style) --- */
+/* Matching .btn-donate visual style but with Danger Red theme */
+#clearSelectionBtn {
+    --clr-font-main: hsla(0 0% 20% / 100);
+    --btn-bg-1: #ef534a;
+    /* Lighter Red */
+    --btn-bg-2: #f44336;
+    /* Danger Red */
+    --btn-bg-color: hsla(360 100% 100% / 1);
+    --radii: 0.5em;
+    /* Same radius as Export btn */
+    cursor: pointer;
+    /* Maintain original layout/sizing logic */
+    min-height: 42px;
+    /* Ensure match with others if needed, or keep auto/inherit */
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: 0.7s;
+    background-size: 280% auto;
+    background-image: linear-gradient(325deg,
+            var(--btn-bg-2) 0%,
+            var(--btn-bg-1) 55%,
+            var(--btn-bg-2) 90%);
+    border: none !important;
+    border-radius: var(--radii);
+    color: var(--btn-bg-color);
+    box-shadow:
+        0px 0px 20px rgba(244, 67, 54, 0.5),
+        0px 5px 5px -1px rgba(211, 47, 47, 0.25),
+        inset 4px 4px 8px rgba(255, 138, 128, 0.5),
+        inset -4px -4px 8px rgba(183, 28, 28, 0.35);
+
+    /* Layout properties */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Inter', sans-serif;
+    position: relative;
+    overflow: hidden !important;
+    /* Hide excess */
+}
+
+#clearSelectionBtn:hover {
+    background-position: right top;
+    color: white;
+}
+
+#clearSelectionBtn:is(:focus, :focus-visible, :active),
+#clearSelectionBtn.clicked {
+    outline: none;
+    box-shadow:
+        0 0 0 3px var(--btn-bg-color),
+        0 0 0 6px var(--btn-bg-2) !important;
+}
+
+/* Light Mode Override */
+[data-theme="light"] #clearSelectionBtn:hover {
+    color: white;
+    /* Keep white on hover for this style */
+}
+
+
+/* --- Apply (Bake) Button (Shine Style) --- */
+/* From Uiverse.io by satyamchaudharydev */
+/* --- Apply (Bake) Button (Blue Gradient Style) --- */
+/* Matching .btn-donate visual style but with Accent Blue theme */
+#applyBtn {
+    --clr-font-main: hsla(0 0% 20% / 100);
+    --btn-bg-1: #4fc3f7;
+    /* Lighter Blue */
+    --btn-bg-2: var(--accent-blue);
+    /* Base Blue */
+    --btn-bg-color: hsla(360 100% 100% / 1);
+    --radii: 0.5em;
+    /* 9999px was pill, changing to 0.5em to match others as per request "same way" */
+
+    /* Layout: Inherit flex behavior from parent group */
+    position: relative;
+    transition: 0.7s;
+    /* Updated to 0.7s */
+    box-shadow:
+        0px 0px 20px rgba(33, 150, 243, 0.5),
+        0px 5px 5px -1px rgba(25, 118, 210, 0.25),
+        inset 4px 4px 8px rgba(187, 222, 251, 0.5),
+        inset -4px -4px 8px rgba(13, 71, 161, 0.35);
+
+    padding-block: 0.5rem;
+    padding-inline: 1.25rem;
+
+    background-size: 280% auto;
+    background-image: linear-gradient(325deg,
+            var(--btn-bg-2) 0%,
+            var(--btn-bg-1) 55%,
+            var(--btn-bg-2) 90%);
+
+    border: none !important;
+    border-radius: 9999px;
+    /* The user asked to keep size/layout mostly? Actually "same way" implies style match. But Apply is usually pill shaped. Let's stick to the gradient style but maybe keep the pill shape if it fits... Logic says "style same way as Clear". Clear has 0.5em radius. I should probably use 0.5em for consistency unless strictly pill needed. Let's use 0.5em to match. */
+    border-radius: var(--radii) !important;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--btn-bg-color);
+    gap: 10px;
+    font-weight: bold;
+    outline: none;
+    overflow: hidden !important;
+    font-size: 15px;
+    cursor: pointer;
+    height: 100%;
+    min-height: 42px;
+}
+
+#applyBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #555 !important;
+    background-image: none !important;
+    color: #aaa !important;
+    pointer-events: none;
+    box-shadow: none !important;
+    border: 1px solid #444 !important;
+}
+
+#applyBtn:hover {
+    background-position: right top;
+    color: white;
+    transform: none !important;
+    /* Remove scaling */
+}
+
+#applyBtn:is(:focus, :focus-visible, :active),
+#applyBtn.clicked {
+    outline: none;
+    box-shadow:
+        0 0 0 3px var(--btn-bg-color),
+        0 0 0 6px var(--btn-bg-2) !important;
+}
+
+
+
+/* --- Export STL Button (Icon Right Style) - COMMENTED OUT
+#exportBtn {
+    --width: 100px;
+    --height: 100%;
+    --tooltip-height: 35px;
+    --tooltip-width: 90px;
+    --gap-between-tooltip-to-button: 18px;
+    --button-color: var(--accent-blue);
+    --tooltip-color: #fff;
+
+    width: 100%;
+    min-height: 42px;
+
+    background: var(--button-color);
+    position: relative;
+    text-align: center;
+    border-radius: 0.45em;
+    font-family: "Arial", sans-serif;
+    transition: background 0.3s;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+#exportBtn::before {
+    position: absolute;
+    content: attr(data-tooltip);
+    width: var(--tooltip-width);
+    height: var(--tooltip-height);
+    background-color: var(--tooltip-color);
+    font-size: 0.9rem;
+    color: #111;
+    border-radius: .25em;
+    line-height: var(--tooltip-height);
+    bottom: calc(var(--height) + var(--gap-between-tooltip-to-button) + 10px);
+    left: calc(50% - var(--tooltip-width) / 2);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s;
+    pointer-events: none;
+    z-index: 10;
+}
+
+
+#exportBtn::after {
+    position: absolute;
+    content: '';
+    width: 0;
+    height: 0;
+    border: 10px solid transparent;
+    border-top-color: var(--tooltip-color);
+    left: calc(50% - 10px);
+    bottom: calc(100% + var(--gap-between-tooltip-to-button) - 10px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s;
+    pointer-events: none;
+    z-index: 10;
+}
+
+#exportBtn:hover::after {
+    bottom: calc(100% + var(--gap-between-tooltip-to-button) - 20px);
+}
+
+#exportBtn:hover::before {
+    bottom: calc(100% + var(--gap-between-tooltip-to-button));
+}
+
+#exportBtn:hover::before,
+#exportBtn:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+#exportBtn .button-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: #fff;
+    padding: 0 5px;
+    box-sizing: border-box;
+}
+
+#exportBtn .text {
+    font-weight: bold;
+    font-size: 13px !important;
+    display: block;
+    white-space: nowrap;
+}
+
+#exportBtn .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#exportBtn:hover {
+    background-color: var(--accent-hover);
+    transform: translateY(-1px);
+}
+
+#exportBtn:active {
+    transform: translateY(0);
+}
+
+#exportBtn:disabled {
+    background-color: #555 !important;
+    cursor: not-allowed;
+    transform: none;
+}
+*/
+
+/* From Uiverse.io by Allyhere - NEW EXPORT BUTTON STYLE */
+.btn-donate {
+    --clr-font-main: hsla(0 0% 20% / 100);
+    --btn-bg-1: hsla(194 100% 69% / 1);
+    --btn-bg-2: hsla(217 100% 56% / 1);
+    --btn-bg-color: hsla(360 100% 100% / 1);
+    --radii: 0.5em;
+    cursor: pointer;
+    padding: 0.9em 1.4em;
+    min-width: 120px;
+    min-height: 44px;
+    font-size: var(--size, 1rem);
+    font-weight: 500;
+    transition: 1s;
+    background-size: 280% auto;
+    background-image: linear-gradient(325deg,
+            var(--btn-bg-2) 0%,
+            var(--btn-bg-1) 55%,
+            var(--btn-bg-2) 90%);
+    border: none;
+    border-radius: var(--radii);
+    color: var(--btn-bg-color);
+    box-shadow:
+        0px 0px 20px rgba(71, 184, 255, 0.5),
+        0px 5px 5px -1px rgba(58, 125, 233, 0.25),
+        inset 4px 4px 8px rgba(175, 230, 255, 0.5),
+        inset -4px -4px 8px rgba(19, 95, 216, 0.35);
+}
+
+.btn-donate:hover {
+    background-position: right top;
+}
+
+.btn-donate:is(:focus, :focus-visible, :active),
+.btn-donate.clicked {
+    outline: none;
+    box-shadow:
+        0 0 0 3px var(--btn-bg-color),
+        0 0 0 6px var(--btn-bg-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn-donate {
+        transition: linear;
+    }
+}
+
+/* Disabled state functionality to maintain app logic */
+.btn-donate:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #555 !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    color: #aaa;
+}
+
+/* --- Button Spinner (3D Cube) --- */
+.spinner-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    margin-top: -22px;
+    /* Half of 44 */
+    margin-left: -22px;
+    transform: scale(0.38);
+    /* Scale the CONTAINER */
+    pointer-events: none;
+    transform-style: preserve-3d;
+}
+
+.btn-spinner {
+    width: 100%;
+    height: 100%;
+    animation: spinner-y0fdc1 2s infinite ease;
+    transform-style: preserve-3d;
+}
+
+.btn-spinner>div {
+    background-color: rgba(0, 77, 255, 0.2);
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    border: 2px solid #004dff;
+}
+
+.btn-spinner div:nth-of-type(1) {
+    transform: translateZ(-22px) rotateY(180deg);
+}
+
+.btn-spinner div:nth-of-type(2) {
+    transform: rotateY(-270deg) translateX(50%);
+    transform-origin: top right;
+}
+
+.btn-spinner div:nth-of-type(3) {
+    transform: rotateY(270deg) translateX(-50%);
+    transform-origin: center left;
+}
+
+.btn-spinner div:nth-of-type(4) {
+    transform: rotateX(90deg) translateY(-50%);
+    transform-origin: top center;
+}
+
+.btn-spinner div:nth-of-type(5) {
+    transform: rotateX(-90deg) translateY(50%);
+    transform-origin: bottom center;
+}
+
+.btn-spinner div:nth-of-type(6) {
+    transform: translateZ(22px);
+}
+
+@keyframes spinner-y0fdc1 {
+    0% {
+        transform: rotate(45deg) rotateX(-25deg) rotateY(25deg);
+    }
+
+    50% {
+        transform: rotate(45deg) rotateX(-385deg) rotateY(25deg);
+    }
+
+    100% {
+        transform: rotate(45deg) rotateX(-385deg) rotateY(385deg);
+    }
+}
+
+/* Loading State for Buttons */
+.load-stl-btn.loading>span,
+.upload-texture-btn.loading>span {
+    visibility: hidden !important;
+    /* Hide text but keep layout size */
+    display: inline-block !important;
+    /* Ensure it takes up space so button doesn't shrink */
+}
+
+.load-stl-btn.loading,
+.upload-texture-btn.loading {
+    pointer-events: none;
+    opacity: 1;
+    /* Keep full opacity */
+    position: relative;
+    color: transparent !important;
+}
+
+/* Remove old pseudo-element spinner if it exists */
+.load-stl-btn.loading::after,
+.upload-texture-btn.loading::after {
+    display: none !important;
+    content: none !important;
+}

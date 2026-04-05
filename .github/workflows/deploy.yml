@@ -1,0 +1,70 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Obfuscator
+        run: npm install -g javascript-obfuscator
+
+      - name: Create Dist Directory
+        run: mkdir -p dist
+
+      - name: Obfuscate Code
+        # Uses base64 encoding and dead code injection as requested
+        run: |
+          javascript-obfuscator ./src --output ./dist \
+            --compact true \
+            --self-defending true \
+            --control-flow-flattening true \
+            --dead-code-injection true \
+            --string-array true \
+            --string-array-encoding 'base64' \
+            --split-strings true
+
+      - name: Restore Performance-Critical Files (Skip Obfuscation)
+        run: |
+          cp src/displacement.worker.js dist/displacement.worker.js
+          cp src/decimation.js dist/decimation.js
+          cp src/subdivision.js dist/subdivision.js
+          cp src/displacement.js dist/displacement.js
+          cp src/mapping.js dist/mapping.js
+          cp src/textureEngine.js dist/textureEngine.js
+
+      - name: Prepare Assets and HTML
+        run: |
+          cp index.html dist/
+          cp src/*.css dist/
+          # Copy assets if they exist
+          if [ -d "assets" ]; then cp -r assets dist/; fi
+
+      - name: Update Paths in HTML
+        # Replaces src="src/" and src="./src/" with src="./"
+        # Replaces href="src/" with href="./"
+        run: |
+          sed -i 's|src="src/|src="./|g' dist/index.html
+          sed -i 's|src="./src/|src="./|g' dist/index.html
+          sed -i 's|href="src/|href="./|g' dist/index.html
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: ./dist

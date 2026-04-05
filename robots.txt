@@ -1,0 +1,13 @@
+# robots.txt – meshtexture.com
+# Allow all crawlers to index the site.
+
+User-agent: *
+Allow: /
+
+# Keep internal build/source clutter out of the index
+Disallow: /node_modules/
+Disallow: /.git/
+Disallow: /.github/
+
+# Sitemap location
+Sitemap: https://www.meshtexture.com/sitemap.xml

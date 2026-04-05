@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <url>
+    <loc>https://www.meshtexture.com/</loc>
+    <lastmod>2026-02-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+
+    <!-- Active translated versions -->
+    <xhtml:link rel="alternate" hreflang="en"        href="https://www.meshtexture.com/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="tr"        href="https://www.meshtexture.com/?lang=tr"/>
+
+    <!-- International locales (all point to canonical until locale paths are live) -->
+    <xhtml:link rel="alternate" hreflang="de"        href="https://www.meshtexture.com/"/>
+    <xhtml:link rel="alternate" hreflang="fr"        href="https://www.meshtexture.com/"/>
+    <xhtml:link rel="alternate" hreflang="es"        href="https://www.meshtexture.com/"/>
+    <xhtml:link rel="alternate" hreflang="it"        href="https://www.meshtexture.com/"/>
+    <xhtml:link rel="alternate" hreflang="nl"        href="https://www.meshtexture.com/"/>
+    <xhtml:link rel="alternate" hreflang="pl"        href="https://www.meshtexture.com/"/>
+    <xhtml:link rel="alternate" hreflang="pt"        href="https://www.meshtexture.com/"/>
+    <xhtml:link rel="alternate" hreflang="ru"        href="https://www.meshtexture.com/"/>
+    <xhtml:link rel="alternate" hreflang="ja"        href="https://www.meshtexture.com/"/>
+    <xhtml:link rel="alternate" hreflang="zh"        href="https://www.meshtexture.com/"/>
+    <xhtml:link rel="alternate" hreflang="ko"        href="https://www.meshtexture.com/"/>
+    <xhtml:link rel="alternate" hreflang="ar"        href="https://www.meshtexture.com/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.meshtexture.com/"/>
+  </url>
+
+</urlset>
