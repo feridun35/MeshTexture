@@ -74,11 +74,11 @@ MeshTexture isn't just a wrapper for Three.js; it's a high-performance geometric
 - **Isotropic Topology:** Unlike standard subdivision, our engine uses a **Longest-Edge Bisection (1:2 Split)** logic. This ensures equilateral triangle shapes, providing a uniform base for textures and preventing "sliver" artifacts in physical prints.
 - **Parallel Processing:** All heavy geometric calculations are offloaded to **Web Workers**, keeping the UI responsive even while processing millions of vertices.
 <img width="2560" height="1393" alt="Ekran görüntüsü 2026-03-05 0018091" src="https://github.com/user-attachments/assets/878209c0-f13b-4b38-95ce-2051b3321dda" />
-
+---
 Youtube Links : 
--https://www.youtube.com/watch?v=PnBJZOQRzQ8
--https://www.youtube.com/watch?v=7fm8YjSZWU4
--https://www.youtube.com/watch?v=H-Zo36ARMus
+https://www.youtube.com/watch?v=PnBJZOQRzQ8 
+https://www.youtube.com/watch?v=7fm8YjSZWU4 
+https://www.youtube.com/watch?v=H-Zo36ARMus 
 ---
 Reddit Threads : 
 https://www.reddit.com/r/3Dprinting/comments/1qlx3sb/i_built_a_free_web_tool_to_embossengrave_physical/ 
