@@ -1,4 +1,4 @@
-import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+import * as THREE from 'three';
 import { applyDisplacement } from './displacement.js';
 
 // displacement.worker.js
@@ -877,7 +877,14 @@ self.onmessage = function (e) {
         seamBandWidth: params.seamBandWidth || 0.35,
         rotationZ: params.rotation || 0,
         matrixWorld: params.matrixWorld ? new THREE.Matrix4().fromArray(params.matrixWorld) : null,
-        planarProjMat: params.planarProjMat ? new THREE.Matrix4().fromArray(params.planarProjMat) : null
+        planarProjMat: params.planarProjMat ? new THREE.Matrix4().fromArray(params.planarProjMat) : null,
+        decalWidth: params.decalWidth,
+        decalHeight: params.decalHeight,
+        decalPosX: params.decalPosX,
+        decalPosY: params.decalPosY,
+        decalRotation: params.decalRotation,
+        decalFlipX: params.decalFlipX,
+        decalFlipY: params.decalFlipY
     };
 
     const onProgress = (p) => {

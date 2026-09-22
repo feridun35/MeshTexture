@@ -8,6 +8,7 @@ export const MODE_CYLINDRICAL = 3;
 export const MODE_SPHERICAL   = 4;
 export const MODE_TRIPLANAR   = 5;
 export const MODE_CUBIC       = 6;
+export const MODE_DECAL       = 7;
 
 // ── GLSL source ──────────────────────────────────────────────────────────────
 //
@@ -38,6 +39,10 @@ const sharedGLSL = /* glsl */`
   uniform int       symmetricDisplacement;
   uniform int       useDisplacement;
   uniform mat4      planarProjMat;
+  uniform vec2      decalSize;
+  uniform vec2      decalPosition;
+  uniform float     decalRotation;
+  uniform vec2      decalFlip;
 
   const float PI     = 3.14159265358979;
   const float TWO_PI = 6.28318530717959;
@@ -91,6 +96,16 @@ const sharedGLSL = /* glsl */`
     return texture2D(displacementMap, uv).r;
   }
 
+  float sampleDecal(vec3 pos) {
+    vec2 local = pos.xy - decalPosition;
+    float c = cos(decalRotation); float s = sin(decalRotation);
+    vec2 uv = vec2(c * local.x - s * local.y,
+                   s * local.x + c * local.y) / max(decalSize, vec2(1e-6)) + 0.5;
+    uv = mix(uv, vec2(1.0) - uv, decalFlip);
+    if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) return 0.0;
+    return texture2D(displacementMap, uv).r;
+  }
+
   // Compute displacement height at a world-space point.
   // projN  = face-stable projection normal (for axis selection)
   // blendN = smooth / interpolated normal  (for blend weights)
@@ -99,7 +114,9 @@ const sharedGLSL = /* glsl */`
     float maxDim = max(boundsSize.x, max(boundsSize.y, boundsSize.z));
     float md = max(maxDim, 1e-4);
 
-    if (mappingMode == 0) {
+    if (mappingMode == 7) {
+      return sampleDecal(pos);
+    } else if (mappingMode == 0) {
       return sampleMap(vec2((pos.x - boundsMin.x) / md, (pos.y - boundsMin.y) / md));
 
     } else if (mappingMode == 1) {
@@ -355,6 +372,10 @@ export function updateMaterial(material, displacementTexture, settings) {
   if(u.seamBandWidth) u.seamBandWidth.value           = settings.seamBandWidth           ?? 0.35;
   if(u.symmetricDisplacement) u.symmetricDisplacement.value   = settings.symmetricDisplacement   ? 1 : 0;
   if(u.useDisplacement) u.useDisplacement.value         = settings.useDisplacement         ? 1 : 0;
+  if(u.decalSize) u.decalSize.value.set(settings.decalWidth, settings.decalHeight);
+  if(u.decalPosition) u.decalPosition.value.set(settings.decalPosX, settings.decalPosY);
+  if(u.decalRotation) u.decalRotation.value = (settings.decalRotation ?? 0) * Math.PI / 180;
+  if(u.decalFlip) u.decalFlip.value.set(settings.decalFlipX ? 1 : 0, settings.decalFlipY ? 1 : 0);
 }
 
 // ── Internal ──────────────────────────────────────────────────────────────────
@@ -381,7 +402,11 @@ function buildUniforms(tex, settings) {
     seamBandWidth:            { value: settings.seamBandWidth            ?? 0.35 },
     symmetricDisplacement:    { value: settings.symmetricDisplacement   ? 1 : 0 },
     useDisplacement:          { value: settings.useDisplacement         ? 1 : 0 },
-    planarProjMat:            { value: new THREE.Matrix4() } // updated by textureEngine
+    planarProjMat:            { value: new THREE.Matrix4() }, // updated by textureEngine
+    decalSize:                { value: new THREE.Vector2(settings.decalWidth ?? 50, settings.decalHeight ?? 50) },
+    decalPosition:            { value: new THREE.Vector2(settings.decalPosX ?? 0, settings.decalPosY ?? 0) },
+    decalRotation:            { value: ((settings.decalRotation ?? 0) * Math.PI / 180) },
+    decalFlip:                { value: new THREE.Vector2(settings.decalFlipX ? 1 : 0, settings.decalFlipY ? 1 : 0) }
   };
 }
 

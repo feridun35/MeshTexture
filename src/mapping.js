@@ -1,4 +1,4 @@
-import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+import * as THREE from 'three';
 
 export const MODE_PLANAR_XY   = 0;
 export const MODE_PLANAR_XZ   = 1;
@@ -7,6 +7,7 @@ export const MODE_CYLINDRICAL = 3;
 export const MODE_SPHERICAL   = 4;
 export const MODE_TRIPLANAR   = 5;
 export const MODE_CUBIC       = 6;
+export const MODE_DECAL       = 7;
 
 const TWO_PI = Math.PI * 2;
 const CUBIC_AXIS_EPSILON = 1e-4;
@@ -106,6 +107,10 @@ export function computeUV(pos, normal, mode, settings, bounds) {
   const md     = Math.max(maxDim, 1e-6);
 
   let u = 0, v = 0;
+
+  if (mode === MODE_DECAL) {
+    return computeDecalUV(pos, settings);
+  }
 
   switch (mode) {
 
@@ -242,6 +247,22 @@ export function computeUV(pos, normal, mode, settings, bounds) {
   }
 
   return applyTransform(u, v, scaleU, scaleV, offsetU, offsetV, rotRad);
+}
+
+/** Physical, non-repeating decal projection in aligned model units. */
+export function computeDecalUV(pos, settings) {
+  const width = Math.max(Math.abs(settings.decalWidth ?? 1), 1e-6);
+  const height = Math.max(Math.abs(settings.decalHeight ?? 1), 1e-6);
+  const angle = (settings.decalRotation ?? 0) * Math.PI / 180;
+  const c = Math.cos(angle);
+  const s = Math.sin(angle);
+  const x = pos.x - (settings.decalPosX ?? 0);
+  const y = pos.y - (settings.decalPosY ?? 0);
+  let u = (c * x - s * y) / width + 0.5;
+  let v = (s * x + c * y) / height + 0.5;
+  if (settings.decalFlipX) u = 1 - u;
+  if (settings.decalFlipY) v = 1 - v;
+  return { triplanar: false, decal: true, inside: u >= 0 && u <= 1 && v >= 0 && v <= 1, u, v };
 }
 
 function applyTransform(u, v, scaleU, scaleV, offsetU, offsetV, rotRad) {

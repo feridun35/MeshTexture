@@ -5,6 +5,9 @@ import { createPreviewMaterial, updateMaterial } from './previewMaterial.js';
 
 export class TextureEngine {
     constructor() {
+        this.decalFrame = null;
+        this.decalFrameVisible = false;
+        this.decalFrameProjectionZ = 0;
         this.uniforms = {
             textureScale: { value: 0.0 }, // 0 = 1x
             textureAmp: { value: -0.40 },
@@ -67,10 +70,27 @@ export class TextureEngine {
             mappingBlend: AppState.params.mappingBlend || 0,
             seamBandWidth: AppState.params.seamBandWidth || 0.35,
             symmetricDisplacement: false,
-            useDisplacement: false // Visual bump only in preview
+            useDisplacement: false, // Visual bump only in preview
+            decalWidth: AppState.params.decalWidth,
+            decalHeight: AppState.params.decalHeight,
+            decalPosX: AppState.params.decalPosX,
+            decalPosY: AppState.params.decalPosY,
+            decalRotation: AppState.params.decalRotation,
+            decalFlipX: AppState.params.decalFlipX,
+            decalFlipY: AppState.params.decalFlipY
         };
 
+        const tex = this.uniforms.uTriplanarMap.value;
+        if (tex) {
+            const wrap = AppState.params.mappingMode === 7 ? THREE.ClampToEdgeWrapping : THREE.RepeatWrapping;
+            if (tex.wrapS !== wrap || tex.wrapT !== wrap) {
+                tex.wrapS = tex.wrapT = wrap;
+                tex.needsUpdate = true;
+            }
+        }
+
         updateMaterial(AppState.mesh.material, this.uniforms.uTriplanarMap.value, settings);
+        this.updateDecalFrame();
 
         // Optional: Keep planarProjMat uniform synced for potential future hybrid use
         if (AppState.mesh.material.uniforms && AppState.mesh.material.uniforms.planarProjMat) {
@@ -191,7 +211,14 @@ export class TextureEngine {
             mappingBlend: AppState.params.mappingBlend || 0,
             seamBandWidth: AppState.params.seamBandWidth || 0.35,
             symmetricDisplacement: false,
-            useDisplacement: false
+            useDisplacement: false,
+            decalWidth: AppState.params.decalWidth,
+            decalHeight: AppState.params.decalHeight,
+            decalPosX: AppState.params.decalPosX,
+            decalPosY: AppState.params.decalPosY,
+            decalRotation: AppState.params.decalRotation,
+            decalFlipX: AppState.params.decalFlipX,
+            decalFlipY: AppState.params.decalFlipY
         };
 
         mesh.material = createPreviewMaterial(this.uniforms.uTriplanarMap.value, settings);
@@ -344,6 +371,112 @@ export class TextureEngine {
         this.updateUniforms();
     }
 
+    getSelectionProjectionBounds(mesh, rotation = 0) {
+        if (!mesh || AppState.selectedFaces.size === 0) return null;
+        const positions = mesh.geometry.attributes.position;
+        const transform = AppState.params.planarProjMat.clone().multiply(mesh.matrixWorld);
+        const point = new THREE.Vector3();
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        let sumX = 0, sumY = 0, sumZ = 0, count = 0;
+        for (const faceIndex of AppState.selectedFaces) {
+            const base = faceIndex * 3;
+            for (let vertex = 0; vertex < 3; vertex++) {
+                point.fromBufferAttribute(positions, base + vertex).applyMatrix4(transform);
+                minX = Math.min(minX, point.x); maxX = Math.max(maxX, point.x);
+                minY = Math.min(minY, point.y); maxY = Math.max(maxY, point.y);
+                sumX += point.x; sumY += point.y; sumZ += point.z; count++;
+            }
+        }
+        if (!count) return null;
+        const centerX = sumX / count;
+        const centerY = sumY / count;
+        const centerZ = sumZ / count;
+        let fitWidth = maxX - minX;
+        let fitHeight = maxY - minY;
+        let fitCenterX = (minX + maxX) * 0.5;
+        let fitCenterY = (minY + maxY) * 0.5;
+
+        if (rotation !== 0) {
+            const angle = rotation * Math.PI / 180;
+            const c = Math.cos(angle), s = Math.sin(angle);
+            let rotatedMinX = Infinity, rotatedMinY = Infinity;
+            let rotatedMaxX = -Infinity, rotatedMaxY = -Infinity;
+            for (const faceIndex of AppState.selectedFaces) {
+                const base = faceIndex * 3;
+                for (let vertex = 0; vertex < 3; vertex++) {
+                    point.fromBufferAttribute(positions, base + vertex).applyMatrix4(transform);
+                    const x = point.x - centerX;
+                    const y = point.y - centerY;
+                    const rotatedX = c * x - s * y;
+                    const rotatedY = s * x + c * y;
+                    rotatedMinX = Math.min(rotatedMinX, rotatedX); rotatedMaxX = Math.max(rotatedMaxX, rotatedX);
+                    rotatedMinY = Math.min(rotatedMinY, rotatedY); rotatedMaxY = Math.max(rotatedMaxY, rotatedY);
+                }
+            }
+            fitWidth = rotatedMaxX - rotatedMinX;
+            fitHeight = rotatedMaxY - rotatedMinY;
+            const rotatedCenterX = (rotatedMinX + rotatedMaxX) * 0.5;
+            const rotatedCenterY = (rotatedMinY + rotatedMaxY) * 0.5;
+            fitCenterX = centerX + c * rotatedCenterX + s * rotatedCenterY;
+            fitCenterY = centerY - s * rotatedCenterX + c * rotatedCenterY;
+        }
+
+        return { minX, minY, maxX, maxY, centerX, centerY, centerZ, fitCenterX, fitCenterY, fitWidth, fitHeight };
+    }
+
+    setDecalFrameVisible(visible) {
+        this.decalFrameVisible = visible;
+        this.updateDecalFrame();
+    }
+
+    updateDecalFrame() {
+        if (!AppState.scene) return;
+        if (!this.decalFrame) {
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(12), 3));
+            const material = new THREE.LineBasicMaterial({
+                color: 0xd500f9,
+                transparent: true,
+                opacity: 0.95,
+                depthTest: false,
+                depthWrite: false
+            });
+            this.decalFrame = new THREE.LineLoop(geometry, material);
+            this.decalFrame.frustumCulled = false;
+            this.decalFrame.renderOrder = 1000;
+            AppState.scene.add(this.decalFrame);
+        }
+
+        const visible = this.decalFrameVisible && AppState.params.mappingMode === 7 && !!AppState.mesh;
+        this.decalFrame.visible = visible;
+        if (!visible) {
+            AppState.markDirty();
+            return;
+        }
+
+        const halfWidth = Math.max(AppState.params.decalWidth, 0.1) * 0.5;
+        const halfHeight = Math.max(AppState.params.decalHeight, 0.1) * 0.5;
+        const angle = AppState.params.decalRotation * Math.PI / 180;
+        const c = Math.cos(angle), s = Math.sin(angle);
+        const inverseProjection = AppState.params.planarProjMat.clone().invert();
+        const corners = [[-halfWidth, -halfHeight], [halfWidth, -halfHeight], [halfWidth, halfHeight], [-halfWidth, halfHeight]];
+        const array = this.decalFrame.geometry.attributes.position.array;
+        const point = new THREE.Vector3();
+        for (let i = 0; i < corners.length; i++) {
+            const x = corners[i][0], y = corners[i][1];
+            point.set(
+                AppState.params.decalPosX + c * x + s * y,
+                AppState.params.decalPosY - s * x + c * y,
+                this.decalFrameProjectionZ
+            ).applyMatrix4(inverseProjection);
+            array[i * 3] = point.x;
+            array[i * 3 + 1] = point.y;
+            array[i * 3 + 2] = point.z;
+        }
+        this.decalFrame.geometry.attributes.position.needsUpdate = true;
+        AppState.markDirty();
+    }
+
     loadTexture(file) {
         if (!file) return;
         const loader = new THREE.TextureLoader();
@@ -353,6 +486,15 @@ export class TextureEngine {
             tex.wrapS = THREE.RepeatWrapping;
             tex.wrapT = THREE.RepeatWrapping;
             this.uniforms.uTriplanarMap.value = tex;
+            AppState.params.decalAspect = tex.image.width / Math.max(tex.image.height, 1);
+            if (AppState.params.decalLockAspect) {
+                AppState.params.decalHeight = AppState.params.decalWidth / AppState.params.decalAspect;
+            }
+            // Texture resources are not serialized in history, so snapshots from
+            // the previous image cannot be restored consistently.
+            AppState.undoStack = [];
+            AppState.redoStack = [];
+            AppState.updateUndoRedoUI();
 
             // Enable UI Controls
             const controls = document.getElementById('textureControls');
@@ -445,7 +587,14 @@ export class TextureEngine {
                 poleSmoothness: AppState.params.poleSmoothness,
                 bounds: boundsData,
                 planarProjMat: AppState.params.planarProjMat.elements, 
-                matrixWorld: mesh.matrixWorld.elements
+                matrixWorld: mesh.matrixWorld.elements,
+                decalWidth: AppState.params.decalWidth,
+                decalHeight: AppState.params.decalHeight,
+                decalPosX: AppState.params.decalPosX,
+                decalPosY: AppState.params.decalPosY,
+                decalRotation: AppState.params.decalRotation,
+                decalFlipX: AppState.params.decalFlipX,
+                decalFlipY: AppState.params.decalFlipY
             };
 
             // 3. Setup Worker Listener
