@@ -1,4 +1,4 @@
-import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+import * as THREE from 'three';
 import { computeUV, getDominantCubicAxis, getCubicBlendWeights } from './mapping.js';
 
 /**
@@ -169,8 +169,10 @@ export function applyDisplacement(geometry, imageData, imgWidth, imgHeight, sett
       for (const s of uvResult.samples) {
         grey += sampleBilinear(imageData.data, imgWidth, imgHeight, s.u, s.v) * s.w;
       }
+    } else if (uvResult.inside !== false) {
+      grey = sampleBilinear(imageData.data, imgWidth, imgHeight, uvResult.u, uvResult.v, !uvResult.decal);
     } else {
-      grey = sampleBilinear(imageData.data, imgWidth, imgHeight, uvResult.u, uvResult.v);
+      grey = 0;
     }
     dispCache.set(k, grey);
   }
@@ -271,12 +273,17 @@ export function applyDisplacement(geometry, imageData, imgWidth, imgHeight, sett
   return out;
 }
 
-function sampleBilinear(data, w, h, u, v) {
-  u = ((u % 1) + 1) % 1;
-  v = ((v % 1) + 1) % 1;
+function sampleBilinear(data, w, h, u, v, repeat = true) {
+  if (repeat) {
+    u = ((u % 1) + 1) % 1;
+    v = ((v % 1) + 1) % 1;
+  } else {
+    u = Math.max(0, Math.min(1, u));
+    v = Math.max(0, Math.min(1, v));
+  }
 
   const fx = u * (w - 1);
-  const fy = v * (h - 1);
+  const fy = (1 - v) * (h - 1);
   const x0 = Math.floor(fx);
   const y0 = Math.floor(fy);
   const x1 = Math.min(x0 + 1, w - 1);

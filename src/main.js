@@ -14,6 +14,14 @@ class MainApp {
     constructor() {
         this.container = document.getElementById('canvasContainer');
         this.currentLang = 'en'; // Default
+        this.decalMoveActive = false;
+        this.decalDragging = false;
+        this.decalRaycaster = new THREE.Raycaster();
+        this.decalPointer = new THREE.Vector2();
+        this.decalDragOffset = new THREE.Vector2();
+        this.decalDragPlane = new THREE.Plane();
+        this.decalDragPoint = new THREE.Vector3();
+        this.decalWheelTimer = null;
         this.initThree();
         this.initModules();
         this.initEvents();
@@ -303,6 +311,7 @@ class MainApp {
                     poleSmoothContainer.style.display = (AppState.params.mappingMode === 4) ? 'grid' : 'none';
                 }
             }
+            this.syncDecalUI();
 
             // 3. Button states (merged from first listener)
             const isBaked = AppState.params.isBaked;
@@ -730,6 +739,7 @@ class MainApp {
                 }
                 // Texture is now bound — scene needs a render
                 AppState.markDirty();
+                this.syncDecalUI();
             });
             window.addEventListener('texture-error', () => {
                 if (uploadBtn) {
@@ -812,6 +822,7 @@ class MainApp {
             // Apply (Bake)
             applyBtn.addEventListener('click', () => {
                 if (!AppState.mesh) return;
+                if (this.decalMoveActive) this.setDecalMoveActive(false);
 
                 // FIX: Prevent Bake if no selection
                 if (AppState.selectedFaces.size === 0) {
@@ -1111,8 +1122,9 @@ class MainApp {
         if (mappingModeSelect) {
             mappingModeSelect.addEventListener('change', (e) => {
                 const val = parseInt(e.target.value);
-                const oldVal = AppState.params.mappingMode;
+                AppState.saveState();
                 AppState.params.mappingMode = val;
+                this.syncDecalUI();
 
                 // Removed auto-scale shifting to keep user scale intact when changing modes
 
@@ -1135,6 +1147,103 @@ class MainApp {
             });
         }
 
+        // Physical single-image decal controls. Values are in the aligned
+        // projection plane and only update shader uniforms until Bake is used.
+        const decalFields = {
+            decalWidth: 'decalWidth',
+            decalHeight: 'decalHeight',
+            decalPosX: 'decalPosX',
+            decalPosY: 'decalPosY',
+            decalRotation: 'decalRotation'
+        };
+        Object.entries(decalFields).forEach(([id, param]) => {
+            const input = document.getElementById(id);
+            if (!input) return;
+            input.addEventListener('change', () => {
+                let value = Number.parseFloat(input.value);
+                if (!Number.isFinite(value)) value = AppState.params[param];
+                if (param === 'decalWidth' || param === 'decalHeight') value = Math.max(0.1, value);
+                if (param === 'decalRotation') value = Math.max(-180, Math.min(180, value));
+                AppState.saveState();
+                AppState.params[param] = value;
+                if (AppState.params.decalLockAspect) {
+                    const aspect = Math.max(AppState.params.decalAspect || 1, 1e-6);
+                    if (param === 'decalWidth') AppState.params.decalHeight = value / aspect;
+                    if (param === 'decalHeight') AppState.params.decalWidth = value * aspect;
+                }
+                this.syncDecalUI();
+                this.textureEngine.updateUniforms();
+            });
+        });
+
+        ['decalFlipX', 'decalFlipY', 'decalLockAspect'].forEach(id => {
+            const input = document.getElementById(id);
+            if (!input) return;
+            input.addEventListener('change', () => {
+                AppState.saveState();
+                AppState.params[id] = input.checked;
+                if (id === 'decalLockAspect' && input.checked) {
+                    AppState.params.decalHeight = AppState.params.decalWidth / Math.max(AppState.params.decalAspect || 1, 1e-6);
+                }
+                this.syncDecalUI();
+                this.textureEngine.updateUniforms();
+            });
+        });
+
+        const resetDecal = document.getElementById('decalReset');
+        if (resetDecal) resetDecal.addEventListener('click', () => {
+            AppState.saveState();
+            AppState.params.decalWidth = 50;
+            AppState.params.decalHeight = 50 / Math.max(AppState.params.decalAspect || 1, 1e-6);
+            AppState.params.decalPosX = 0;
+            AppState.params.decalPosY = 0;
+            AppState.params.decalRotation = 0;
+            AppState.params.decalFlipX = false;
+            AppState.params.decalFlipY = false;
+            AppState.params.decalLockAspect = true;
+            this.syncDecalUI();
+            this.textureEngine.updateUniforms();
+        });
+
+        const centerDecal = document.getElementById('decalCenter');
+        if (centerDecal) centerDecal.addEventListener('click', () => {
+            const projected = this.textureEngine.getSelectionProjectionBounds(AppState.mesh);
+            if (!projected) return;
+            AppState.saveState();
+            AppState.params.decalPosX = projected.centerX;
+            AppState.params.decalPosY = projected.centerY;
+            this.textureEngine.decalFrameProjectionZ = projected.centerZ;
+            this.syncDecalUI();
+            this.textureEngine.updateUniforms();
+        });
+
+        const fitDecal = document.getElementById('decalFit');
+        if (fitDecal) fitDecal.addEventListener('click', () => {
+            const projected = this.textureEngine.getSelectionProjectionBounds(AppState.mesh, AppState.params.decalRotation);
+            if (!projected) return;
+            AppState.saveState();
+            AppState.params.decalPosX = projected.fitCenterX;
+            AppState.params.decalPosY = projected.fitCenterY;
+            this.textureEngine.decalFrameProjectionZ = projected.centerZ;
+            let width = Math.max(projected.fitWidth, 0.1);
+            let height = Math.max(projected.fitHeight, 0.1);
+            if (AppState.params.decalLockAspect) {
+                const aspect = Math.max(AppState.params.decalAspect || 1, 1e-6);
+                width = Math.max(width, height * aspect);
+                height = width / aspect;
+            }
+            AppState.params.decalWidth = width;
+            AppState.params.decalHeight = height;
+            this.syncDecalUI();
+            this.textureEngine.updateUniforms();
+        });
+
+        const moveDecal = document.getElementById('decalMove');
+        if (moveDecal) {
+            moveDecal.addEventListener('click', () => this.setDecalMoveActive(!this.decalMoveActive));
+            this.initDecalMoveEvents();
+        }
+
         // Align Projection Button
         const alignProjectionBtn = document.getElementById('alignProjectionBtn');
         if (alignProjectionBtn) {
@@ -1152,6 +1261,7 @@ class MainApp {
                 }, 300);
 
                 // Force true alignment to selection
+                AppState.saveState();
                 this.textureEngine.updateProjectionBasis(AppState.mesh, true);
             });
         }
@@ -1570,6 +1680,140 @@ class MainApp {
 
                 }, 600); // 600ms match CSS
             }
+        });
+        this.syncDecalUI();
+    }
+
+    setDecalMoveActive(active) {
+        this.decalMoveActive = !!active && AppState.params.mappingMode === 7;
+        if (!this.decalMoveActive) this.endDecalDrag();
+        if (this.decalMoveActive && AppState.mesh && AppState.selectedFaces.size > 0) {
+            const projected = this.textureEngine.getSelectionProjectionBounds(AppState.mesh);
+            if (projected) this.textureEngine.decalFrameProjectionZ = projected.centerZ;
+        }
+        document.body.classList.toggle('decal-moving', this.decalMoveActive);
+        const button = document.getElementById('decalMove');
+        if (button) {
+            button.classList.toggle('active', this.decalMoveActive);
+            button.setAttribute('aria-pressed', String(this.decalMoveActive));
+        }
+        if (this.textureEngine) this.textureEngine.setDecalFrameVisible(this.decalMoveActive);
+    }
+
+    initDecalMoveEvents() {
+        const canvas = AppState.renderer?.domElement;
+        if (!canvas) return;
+
+        const projectPointer = (event) => {
+            const rect = canvas.getBoundingClientRect();
+            this.decalPointer.set(
+                ((event.clientX - rect.left) / rect.width) * 2 - 1,
+                -((event.clientY - rect.top) / rect.height) * 2 + 1
+            );
+            this.decalRaycaster.setFromCamera(this.decalPointer, AppState.camera);
+            if (this.decalDragging) {
+                const worldPoint = this.decalRaycaster.ray.intersectPlane(this.decalDragPlane, this.decalDragPoint);
+                return worldPoint ? worldPoint.clone().applyMatrix4(AppState.params.planarProjMat) : null;
+            }
+            const hit = this.decalRaycaster.intersectObject(AppState.mesh, false)[0];
+            return hit ? hit.point.clone().applyMatrix4(AppState.params.planarProjMat) : null;
+        };
+
+        canvas.addEventListener('pointerdown', (event) => {
+            if (!this.decalMoveActive || event.button !== 0 || !AppState.mesh) return;
+            const point = projectPointer(event);
+            if (!point) return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            AppState.saveState();
+            this.decalDragOffset.set(
+                AppState.params.decalPosX - point.x,
+                AppState.params.decalPosY - point.y
+            );
+            const inverseProjection = AppState.params.planarProjMat.clone().invert();
+            const planePoint = new THREE.Vector3(point.x, point.y, point.z).applyMatrix4(inverseProjection);
+            const planeNormal = new THREE.Vector3(0, 0, 1).transformDirection(inverseProjection);
+            this.decalDragPlane.setFromNormalAndCoplanarPoint(planeNormal, planePoint);
+            this.textureEngine.decalFrameProjectionZ = point.z;
+            this.textureEngine.updateDecalFrame();
+            this.decalDragging = true;
+            document.body.classList.add('decal-dragging');
+            if (AppState.controls) AppState.controls.enabled = false;
+            canvas.setPointerCapture(event.pointerId);
+        }, true);
+
+        canvas.addEventListener('pointermove', (event) => {
+            if (!this.decalDragging) return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            const point = projectPointer(event);
+            if (!point) return;
+            AppState.params.decalPosX = point.x + this.decalDragOffset.x;
+            AppState.params.decalPosY = point.y + this.decalDragOffset.y;
+            this.syncDecalUI();
+            this.textureEngine.updateUniforms();
+        }, true);
+
+        const finishDrag = (event) => {
+            if (!this.decalDragging) return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+            this.endDecalDrag();
+        };
+        canvas.addEventListener('pointerup', finishDrag, true);
+        canvas.addEventListener('pointercancel', finishDrag, true);
+
+        canvas.addEventListener('wheel', (event) => {
+            if (!this.decalMoveActive) return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            if (!this.decalWheelTimer) AppState.saveState();
+            clearTimeout(this.decalWheelTimer);
+            this.decalWheelTimer = setTimeout(() => { this.decalWheelTimer = null; }, 250);
+            if (event.shiftKey) {
+                AppState.params.decalRotation = Math.max(-180, Math.min(180,
+                    AppState.params.decalRotation + Math.sign(event.deltaY || event.deltaX) * 2
+                ));
+            } else {
+                const factor = Math.exp(event.deltaY * 0.001);
+                AppState.params.decalWidth = Math.max(0.1, AppState.params.decalWidth * factor);
+                AppState.params.decalHeight = Math.max(0.1, AppState.params.decalHeight * factor);
+            }
+            this.syncDecalUI();
+            this.textureEngine.updateUniforms();
+        }, { capture: true, passive: false });
+
+        window.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && this.decalMoveActive) this.setDecalMoveActive(false);
+        });
+    }
+
+    endDecalDrag() {
+        this.decalDragging = false;
+        document.body.classList.remove('decal-dragging');
+        if (AppState.controls) AppState.controls.enabled = true;
+    }
+
+    syncDecalUI() {
+        const modeSelect = document.getElementById('mappingModeSelect');
+        if (modeSelect) modeSelect.value = String(AppState.params.mappingMode);
+        const panel = document.getElementById('decalTransform');
+        if (panel) panel.style.display = AppState.params.mappingMode === 7 ? 'block' : 'none';
+        // These tiled UV controls have no effect on a physical decal.
+        for (const id of ['texScale', 'texOffset', 'texRot']) {
+            const row = document.getElementById(id)?.closest('.grid-control');
+            if (row) row.style.display = AppState.params.mappingMode === 7 ? 'none' : '';
+        }
+        if (AppState.params.mappingMode !== 7 && this.decalMoveActive) this.setDecalMoveActive(false);
+        const values = ['decalWidth', 'decalHeight', 'decalPosX', 'decalPosY', 'decalRotation'];
+        values.forEach(id => {
+            const input = document.getElementById(id);
+            if (input) input.value = Number(AppState.params[id]).toFixed(id === 'decalRotation' ? 1 : 2);
+        });
+        ['decalFlipX', 'decalFlipY', 'decalLockAspect'].forEach(id => {
+            const input = document.getElementById(id);
+            if (input) input.checked = !!AppState.params[id];
         });
     }
 

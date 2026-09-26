@@ -48,7 +48,16 @@ const AppState = {
         // patternMode Removed
 
         // Mapping Modes
-        mappingMode: 5, // 5 = Triplanar
+        mappingMode: 7, // Decal / Single Image, matching the initial UI
+        decalWidth: 50.0,
+        decalHeight: 50.0,
+        decalPosX: 0.0,
+        decalPosY: 0.0,
+        decalRotation: 0.0,
+        decalFlipX: false,
+        decalFlipY: false,
+        decalLockAspect: true,
+        decalAspect: 1.0,
         poleSmoothness: 0.0, // 0.0 - 1.0
         isBaked: false, // Track bake state
 
@@ -339,6 +348,15 @@ const AppState = {
 
         current.mappingMode = p.mappingMode;
         current.poleSmoothness = p.poleSmoothness;
+        current.decalWidth = p.decalWidth ?? current.decalWidth;
+        current.decalHeight = p.decalHeight ?? current.decalHeight;
+        current.decalPosX = p.decalPosX ?? current.decalPosX;
+        current.decalPosY = p.decalPosY ?? current.decalPosY;
+        current.decalRotation = p.decalRotation ?? current.decalRotation;
+        current.decalFlipX = p.decalFlipX ?? current.decalFlipX;
+        current.decalFlipY = p.decalFlipY ?? current.decalFlipY;
+        current.decalLockAspect = p.decalLockAspect ?? current.decalLockAspect;
+        current.decalAspect = p.decalAspect ?? current.decalAspect;
 
         // F-05: Restore projectionMode and rehydrate planarProjMat from array
         if (p.projectionMode !== undefined) current.projectionMode = p.projectionMode;
