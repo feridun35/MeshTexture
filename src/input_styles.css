@@ -907,3 +907,34 @@
     display: none !important;
     content: none !important;
 }
+
+/* --- Drag & Drop Visual Feedback --- */
+.load-stl-btn.drag-over,
+.upload-texture-btn.drag-over {
+    outline: 2.5px dashed var(--accent-blue, #2196F3) !important;
+    outline-offset: -3px;
+    transform: scale(1.04);
+    transition: transform 0.15s ease, outline 0.15s ease;
+    box-shadow: 0 0 18px rgba(33, 150, 243, 0.45),
+                6px 6px 12px #151515,
+                -6px -6px 12px #272727;
+}
+
+.upload-texture-btn.drag-over {
+    outline-color: var(--success-green, #4CAF50) !important;
+    box-shadow: 0 0 18px rgba(76, 175, 80, 0.45),
+                6px 6px 12px #151515,
+                -6px -6px 12px #272727;
+}
+
+[data-theme="light"] .load-stl-btn.drag-over {
+    box-shadow: 0 0 18px rgba(33, 150, 243, 0.35),
+                6px 6px 12px #c5c5c5,
+                -6px -6px 12px #ffffff;
+}
+
+[data-theme="light"] .upload-texture-btn.drag-over {
+    box-shadow: 0 0 18px rgba(76, 175, 80, 0.35),
+                6px 6px 12px #c5c5c5,
+                -6px -6px 12px #ffffff;
+}

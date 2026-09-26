@@ -168,7 +168,7 @@ class MainApp {
             const key = el.getAttribute('data-i18n');
             if (translations[lang][key]) {
                 // Handle HTML content for specific keys (br tags) or specific structure
-                if (key === 'uploadTexture' || key === 'selectTexture' || key === 'tickerTip1' || key === 'tickerTip2' || key === 'tickerTip3' || key === 'tickerTip4' || key === 'paintInstructions') {
+                if (key === 'uploadTexture' || key === 'selectTexture' || key === 'tickerTip1' || key === 'tickerTip2' || key === 'tickerTip3' || key === 'tickerTip4' || key === 'paintInstructions' || key.includes('popup')) {
                     // If the element has children (like Upload Texture has <br>), we might want to be careful.
                     // But replacing innerHTML is simplest for "Doku<br>Yükle".
                     // For ticker items which contain <strong>, innerHTML is also needed.
@@ -750,6 +750,88 @@ class MainApp {
             });
         }
 
+        // --- DRAG & DROP: Upload Texture ---
+        if (uploadBtn) {
+            uploadBtn.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadBtn.classList.add('drag-over');
+            });
+            uploadBtn.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadBtn.classList.add('drag-over');
+            });
+            uploadBtn.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadBtn.classList.remove('drag-over');
+            });
+            uploadBtn.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                uploadBtn.classList.remove('drag-over');
+                const files = e.dataTransfer.files;
+                if (files.length) {
+                    const file = files[0];
+                    if (file.type.startsWith('image/')) {
+                        // Show Spinner
+                        uploadBtn.classList.add('loading');
+                        let wrapper = uploadBtn.querySelector('.spinner-wrapper');
+                        if (!wrapper) {
+                            wrapper = document.createElement('div');
+                            wrapper.className = 'spinner-wrapper';
+                            const spinner = document.createElement('div');
+                            spinner.className = 'btn-spinner';
+                            for (let i = 0; i < 6; i++) spinner.appendChild(document.createElement('div'));
+                            wrapper.appendChild(spinner);
+                            uploadBtn.appendChild(wrapper);
+                        }
+
+                        this.textureEngine.loadTexture(file);
+
+                        // Set defaults for manual uploads
+                        AppState.params.textureScale = 4.0;
+                        AppState.params.textureAmplitude = 0.45;
+                        AppState.params.textureSharpness = 20.0;
+
+                        const setUI = (id, val, isInt = false) => {
+                            const el = document.getElementById(id);
+                            const input = document.getElementById(id + 'Input');
+                            if (el) {
+                                el.value = val;
+                                const min = parseFloat(el.min) || 0;
+                                const max = parseFloat(el.max) || 100;
+                                const percent = ((val - min) / (max - min)) * 100;
+                                el.style.setProperty('--val-percent', percent + '%');
+                                el.style.setProperty('--val-decimal', (percent / 100).toFixed(4));
+                            }
+                            if (input) {
+                                input.value = isInt ? val.toFixed(0) + (id === 'polyLimit' ? 'M' : '') : val.toFixed(2);
+                            }
+                        };
+
+                        setUI('texScale', 4.0);
+                        setUI('texAmp', 0.45);
+                        setUI('texSharp', 20.0);
+                        setUI('polyLimit', 2, true);
+
+                        // Show Preview on Button
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            uploadBtn.style.backgroundImage = `url(${ev.target.result})`;
+                            uploadBtn.style.backgroundSize = 'cover';
+                            uploadBtn.style.backgroundPosition = 'center';
+                            uploadBtn.style.color = 'transparent';
+                            const span = uploadBtn.querySelector('span');
+                            if (span) span.style.opacity = '0';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                }
+            });
+        }
+
         const smartFillToggle = document.getElementById('smartFillToggle');
         if (smartFillToggle) {
             AppState.params.selectionMode = smartFillToggle.checked;
@@ -1062,6 +1144,14 @@ class MainApp {
                             applyBtn.innerText = originalText;
                             applyBtn.disabled = false;
                             AppState.isBaking = false; // F-14: reset on success
+
+                            // SHOW SUPPORT POPUP AFTER BAKE
+                            const supportPopup = document.getElementById('supportPopup');
+                            if (supportPopup) {
+                                setTimeout(() => {
+                                    supportPopup.style.display = 'flex';
+                                }, 800); // Show shortly after the processing overlay fades out
+                            }
                         }, 1000);
 
                     });
@@ -1593,6 +1683,91 @@ class MainApp {
             });
         }
 
+        // --- DRAG & DROP: Load STL ---
+        const stlLabel = stlInput ? stlInput.closest('label') : null;
+        if (stlLabel) {
+            stlLabel.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                stlLabel.classList.add('drag-over');
+            });
+            stlLabel.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                stlLabel.classList.add('drag-over');
+            });
+            stlLabel.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                stlLabel.classList.remove('drag-over');
+            });
+            stlLabel.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                stlLabel.classList.remove('drag-over');
+                const files = e.dataTransfer.files;
+                if (files.length) {
+                    const file = files[0];
+                    if (file.name.toLowerCase().endsWith('.stl')) {
+                        // Trigger the same logic as the file input change
+                        const btn = stlLabel;
+                        updateBtn(btn, 0);
+                        this.loaderModule.loadSTL(file,
+                            (percent) => {
+                                updateBtn(btn, percent);
+                                if (percent >= 100) {
+                                    setTimeout(() => {
+                                        successBtn(btn, 'Load STL');
+                                        const welcome = document.getElementById('welcomeOverlay');
+                                        if (welcome) {
+                                            welcome.classList.add('fade-out');
+                                            setTimeout(() => { welcome.style.display = 'none'; }, 800);
+                                        }
+                                        const lockContainer = document.getElementById('lockSelectionContainer');
+                                        if (lockContainer) {
+                                            lockContainer.style.opacity = '1';
+                                            lockContainer.style.pointerEvents = 'auto';
+                                        }
+                                        if (AppState.mesh) {
+                                            this.textureEngine.applyTriplanarMaterial(AppState.mesh);
+                                            AppState.mesh.material.wireframe = AppState.params.wireframe;
+                                            const texControls = document.getElementById('textureControls');
+                                            if (texControls) {
+                                                const hasTexture = AppState.textureEngine &&
+                                                    AppState.textureEngine.uniforms.uTriplanarMap.value;
+                                                if (hasTexture) {
+                                                    texControls.style.opacity = '1';
+                                                    texControls.style.pointerEvents = 'auto';
+                                                } else {
+                                                    texControls.style.opacity = '0.5';
+                                                    texControls.style.pointerEvents = 'none';
+                                                }
+                                            }
+                                            const exportBtn = document.getElementById('exportBtn');
+                                            if (exportBtn) exportBtn.disabled = true;
+                                            const vcContainer = document.getElementById('viewCubeContainer');
+                                            if (vcContainer) {
+                                                vcContainer.style.opacity = '1';
+                                                vcContainer.style.pointerEvents = 'auto';
+                                            }
+                                            if (AppState.mesh && AppState.mesh.geometry.boundingSphere) {
+                                                const radius = AppState.mesh.geometry.boundingSphere.radius;
+                                                AppState.controls.maxDistance = radius * 12;
+                                            }
+                                        }
+                                    }, 200);
+                                }
+                            },
+                            (err) => {
+                                console.error("Load Failed", err);
+                                errorBtn(btn, 'Load STL');
+                            }
+                        );
+                    }
+                }
+            });
+        }
+
         const texInput = document.getElementById('textureInput');
         if (texInput) {
             texInput.addEventListener('change', (e) => {
@@ -1681,6 +1856,43 @@ class MainApp {
                 }, 600); // 600ms match CSS
             }
         });
+
+        // --- POPUP: New Feature Announcement ---
+        const closePopup = (overlay) => {
+            overlay.classList.add('closing');
+            setTimeout(() => { overlay.style.display = 'none'; overlay.classList.remove('closing'); }, 300);
+        };
+
+        const newFeaturePopup = document.getElementById('newFeaturePopup');
+        const newFeatureClose = document.getElementById('newFeatureClose');
+        if (newFeaturePopup && newFeatureClose) {
+            setTimeout(() => { newFeaturePopup.style.display = 'flex'; }, 1500);
+            newFeatureClose.addEventListener('click', () => {
+                closePopup(newFeaturePopup);
+            });
+            // Close on overlay click (outside popup box)
+            newFeaturePopup.addEventListener('click', (e) => {
+                if (e.target === newFeaturePopup) {
+                    closePopup(newFeaturePopup);
+                }
+            });
+        }
+
+        // --- POPUP: Support (After Bake) ---
+        const supportPopup = document.getElementById('supportPopup');
+        const supportClose = document.getElementById('supportClose');
+        const supportBmcBtn = document.getElementById('supportBmcBtn');
+        if (supportPopup) {
+            const closeSupportPopup = () => closePopup(supportPopup);
+            if (supportClose) supportClose.addEventListener('click', closeSupportPopup);
+            if (supportBmcBtn) supportBmcBtn.addEventListener('click', () => {
+                setTimeout(closeSupportPopup, 300);
+            });
+            supportPopup.addEventListener('click', (e) => {
+                if (e.target === supportPopup) closeSupportPopup();
+            });
+        }
+
         this.syncDecalUI();
     }
 

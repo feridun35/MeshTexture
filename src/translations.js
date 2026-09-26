@@ -39,7 +39,7 @@ export const translations = {
         rotateCtrl: "Rotate",
         panCtrl: "Pan",
         zoomCtrl: "Zoom",
-        rotateKey: "Left Click + Drag",
+        rotateKey: "CTRL + Right Click",
         panKey: "Right Click + Drag",
         zoomKey: "Scroll Wheel",
 
@@ -152,7 +152,7 @@ export const translations = {
         overlayRotate: "Rotate",
         overlayPan: "Pan",
         overlayZoom: "Zoom",
-        overlayRotateKey: "Left Click",
+        overlayRotateKey: "CTRL + Right Click",
         overlayPanKey: "Right Click",
         overlayScrollKey: "Scroll",
 
@@ -188,6 +188,22 @@ export const translations = {
         tickerTip7: "🔌 Offline Capable: Once loaded, you can even unplug your internet and keep texturing!",
         privacyMatters: "Your Privacy Matters!",
         privacyDesc: "Unlike other tools, MeshTexture does not send your files to any server. Your proprietary designs are processed entirely using your own hardware (CPU/GPU) via your browser.",
+
+        // Popups
+        popupNewFeatureBadge: "🆕 v1.70",
+        popupNewFeatureTitle: "What's new in v1.70",
+        popupNewFeatureDesc: "We've added some highly requested features to improve your workflow!",
+        popupNewFeature1: "📥 Drag & Drop support for STL and texture files",
+        popupNewFeature2: "🖼️ Decal mode for placing single images anywhere",
+        popupNewFeature3: "⚙️ Viewport Controls: CTRL + Right Click (Rotate), Right Click (Pan)",
+        popupNewFeatureHint: "Check out the <strong>Workflow Guide</strong> and <strong>Texture Mapping</strong> menus to explore.",
+        popupNewFeatureBtn: "Got it!",
+        popupSupportBadge: "✓ SUCCESS",
+        popupSupportTitle: "Your texture has been baked! 🎉",
+        popupSupportDesc1: "MeshTexture is <strong>100% free</strong> and processes everything locally on your device — no uploads, no servers, no data collection.",
+        popupSupportDesc2: "If this tool helped you, consider supporting the project so we can keep improving it! ☕",
+        popupSupportBmcBtn: "☕ Buy Me a Coffee",
+        popupSupportCloseBtn: "Maybe Later",
     },
     tr: {
         // Sidebar Header / Logo
@@ -229,7 +245,7 @@ export const translations = {
         rotateCtrl: "Döndür",
         panCtrl: "Kaydır",
         zoomCtrl: "Yakınlaştır",
-        rotateKey: "Sol Tık + Sürükle",
+        rotateKey: "CTRL + Sağ Tık",
         panKey: "Sağ Tık + Sürükle",
         zoomKey: "Tekerlek",
 
@@ -342,7 +358,7 @@ export const translations = {
         overlayRotate: "Döndür",
         overlayPan: "Kaydır",
         overlayZoom: "Yakınlaştır",
-        overlayRotateKey: "Sol Tık",
+        overlayRotateKey: "CTRL + Sağ Tık",
         overlayPanKey: "Sağ Tık",
         overlayScrollKey: "Tekerlek",
 
@@ -378,5 +394,21 @@ export const translations = {
         tickerTip7: "🔌 Çevrimdışı Çalışma: Site yüklendikten sonra interneti kapatsanız bile kullanmaya devam edebilirsiniz!",
         privacyMatters: "Gizliliğiniz Önemli!",
         privacyDesc: "Diğer araçların aksine, MeshTexture dosyalarınızı hiçbir sunucuya göndermez. Özel tasarımlarınız tamamen kendi donanımınız (CPU/GPU) kullanılarak tarayıcınız üzerinden işlenir.",
+
+        // Popups
+        popupNewFeatureBadge: "🆕 v1.70",
+        popupNewFeatureTitle: "v1.70 Güncellemesi",
+        popupNewFeatureDesc: "İş akışınızı hızlandıracak ve çok istenen yeni özellikleri ekledik!",
+        popupNewFeature1: "📥 STL ve doku dosyaları için Sürükle & Bırak desteği",
+        popupNewFeature2: "🖼️ İstenilen yere tek görsel eklemek için Çıkartma (Decal) modu",
+        popupNewFeature3: "⚙️ Görünüm Kontrolleri: CTRL + Sağ Tık (Döndür), Sağ Tık (Kaydır)",
+        popupNewFeatureHint: "Keşfetmek için <strong>İş Akışı Rehberi</strong> ve <strong>Doku Kaplama</strong> menülerine göz atın.",
+        popupNewFeatureBtn: "Anladım!",
+        popupSupportBadge: "✓ BAŞARILI",
+        popupSupportTitle: "Dokunuz başarıyla uygulandı! 🎉",
+        popupSupportDesc1: "MeshTexture <strong>%100 ücretsizdir</strong> ve her şeyi cihazınızda yerel olarak işler — dosya yükleme, sunucu veya veri toplama yoktur.",
+        popupSupportDesc2: "Eğer bu araç işinize yaradıysa, projeyi geliştirmeye devam edebilmemiz için destek olmayı düşünebilirsiniz! ☕",
+        popupSupportBmcBtn: "☕ Kahve Ismarla",
+        popupSupportCloseBtn: "Belki Sonra",
     }
 };

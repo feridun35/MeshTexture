@@ -48,7 +48,7 @@ const AppState = {
         // patternMode Removed
 
         // Mapping Modes
-        mappingMode: 7, // Decal / Single Image, matching the initial UI
+        mappingMode: 5, // Triplanar (X, Y, Z Blend), default
         decalWidth: 50.0,
         decalHeight: 50.0,
         decalPosX: 0.0,
