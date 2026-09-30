@@ -3,13 +3,16 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
-    "preview": "vite preview --host 127.0.0.1"
+    "preview": "vite preview --host 127.0.0.1",
+    "build:dist": "node scripts/build-dist.mjs --obfuscate",
+    "serve:dist": "node scripts/serve-dist.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^1.6.1",
     "three": "^0.160.0"
   },
   "devDependencies": {
+    "javascript-obfuscator": "5.8.1",
     "vite": "^6.4.3"
   }
 }

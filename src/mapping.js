@@ -1,4 +1,4 @@
-import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+import * as THREE from '/vendor/three/build/three.module.js';
 
 export const MODE_PLANAR_XY   = 0;
 export const MODE_PLANAR_XZ   = 1;
