@@ -22,3 +22,6 @@ Thumbs.db
 .vercel/
 dist/
 build/
+
+# Self-hosted Three.js (see scripts/build-dist.mjs)
+!vendor/three/build/
